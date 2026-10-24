@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>এইচএসসি ও আলিম জিপিএ ক্যালকুলেটর</title>
+    <style>
+        :root {
+            --primary-color: #10b981;
+            --primary-dark: #059669;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .calculator-card {
+            background: var(--card-bg);
+            max-width: 750px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-top: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-size: 22px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            background-color: #fff;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .subject-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #edf2f7;
+            gap: 15px;
+        }
+
+        .subject-row.fourth-subject {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+        }
+
+        .subject-info {
+            flex: 1;
+        }
+
+        .subject-title {
+            font-weight: 600;
+            font-size: 15px;
+            display: block;
+        }
+
+        .subject-tag {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .grade-select {
+            width: 180px;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .calc-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f0fdf4;
+            border: 2px dashed var(--primary-color);
+            text-align: center;
+            display: none;
+        }
+
+        .result-box h3 {
+            color: #15803d;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .result-details {
+            font-size: 16px;
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .fail-box {
+            background: #fef2f2 !important;
+            border-color: #ef4444 !important;
+        }
+
+        .fail-box h3 {
+            color: #b91c1c !important;
+        }
+
+        /* Developer Footer Styling */
+        .dev-footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .dev-footer span {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        @media (max-width: 600px) {
+            .subject-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .grade-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2>জিপিএ ক্যালকুলেটর (HSC & Alim)</h2>
+
+    <!-- Main Category Tabs -->
+    <div class="tab-group">
+        <button class="tab-btn active" id="hsc-tab" onclick="switchCategory('hsc')">এইচএসসি (HSC)</button>
+        <button class="tab-btn" id="alim-tab" onclick="switchCategory('alim')">আলিম (Alim)</button>
+    </div>
+
+    <!-- Group Selector -->
+    <div class="form-group">
+        <label for="group-select">বিভাগ নির্বাচন করুন:</label>
+        <select id="group-select" onchange="renderSubjects()">
+            <!-- Options added dynamically -->
+        </select>
+    </div>
+
+    <!-- Subjects List Container -->
+    <div id="subjects-container">
+        <!-- Subjects added dynamically -->
+    </div>
+
+    <button class="calc-btn" onclick="calculateGPA()">জিপিএ গণনা করুন</button>
+
+    <!-- Result Display Section -->
+    <div id="result-box" class="result-box">
+        <h3 id="result-title">ফলাফল</h3>
+        <p id="result-text" class="result-details"></p>
+    </div>
+
+    <!-- Developer Branding Footer -->
+    <div class="dev-footer">
+        Designed & Developed by <span>Developer: Tarik Bin Aziz</span>
+    </div>
+</div>
+
+<script>
+    const data = {
+        hsc: {
+            groups: [
+                { id: "science", name: "বিজ্ঞান বিভাগ" },
+                { id: "humanities", name: "মানবিক বিভাগ" },
+                { id: "business", name: "ব্যবসায় শিক্ষা" }
+            ],
+            subjects: {
+                science: [
+                    { name: "বাংলা (১ম ও ২য় পত্র)" },
+                    { name: "ইংরেজি (১ম ও ২য় পত্র)" },
+                    { name: "তথ্য ও যোগাযোগ প্রযুক্তি (ICT)" },
+                    { name: "পদার্থবিজ্ঞান" },
+                    { name: "রসায়ন" },
+                    { name: "জীববিজ্ঞান / উচ্চতর গণিত" },
+                    { name: "৪র্থ বিষয় (উচ্চতর গণিত / জীববিজ্ঞান / অন্যান্য)", isFourth: true }
+                ],
+                humanities: [
+                    { name: "বাংলা (১ম ও ২য় পত্র)" },
+                    { name: "ইংরেজি (১ম ও ২য় পত্র)" },
+                    { name: "তথ্য ও যোগাযোগ প্রযুক্তি (ICT)" },
+                    { name: "পৌরনীতি ও সুশাসন" },
+                    { name: "অর্থনীতি" },
+                    { name: "যুক্তিবিদ্যা / ইতিহাস / সমাজবিজ্ঞান" },
+                    { name: "৪র্থ বিষয় (কৃষি/পৌরনীতি/অন্যান্য)", isFourth: true }
+                ],
+                business: [
+                    { name: "বাংলা (১ম ও ২য় পত্র)" },
+                    { name: "ইংরেজি (১ম ও ২য় পত্র)" },
+                    { name: "তথ্য ও যোগাযোগ প্রযুক্তি (ICT)" },
+                    { name: "হিসাববিজ্ঞান" },
+                    { name: "ব্যবসায় সংগঠন ও ব্যবস্থাপনা" },
+                    { name: "ফিন্যান্স, ব্যাংকিং ও বীমা / উৎপাদন ব্যবস্থাপনা" },
+                    { name: "৪র্থ বিষয় (কৃষি/অন্যান্য)", isFourth: true }
+                ]
+            }
+        },
+        alim: {
+            groups: [
+                { id: "general", name: "সাধারণ বিভাগ" },
+                { id: "science", name: "বিজ্ঞান বিভাগ" }
+            ],
+            subjects: {
+                general: [
+                    { name: "কুরআন মাজিদ ও হাদিস শরীফ" },
+                    { name: "আল-ফিকহ (১ম ও ২য় পত্র)" },
+                    { name: "আরবি (১ম ও ২য় পত্র)" },
+                    { name: "ইসলামের ইতিহাস এবং বালাঘাত ও মানতিক" },
+                    { name: "বাংলা (১ম ও ২য় পত্র)" },
+                    { name: "ইংরেজি (১ম ও ২য় পত্র)" },
+                    { name: "তথ্য ও যোগাযোগ প্রযুক্তি (ICT)" },
+                    { name: "৪র্থ বিষয় (পৌরনীতি / অর্থনীতি / অন্যান্য)", isFourth: true }
+                ],
+                science: [
+                    { name: "কুরআন মাজিদ ও হাদিস শরীফ" },
+                    { name: "আল-ফিকহ (১ম ও ২য় পত্র)" },
+                    { name: "বাংলা (১ম ও ২য় পত্র)" },
+                    { name: "ইংরেজি (১ম ও ২য় পত্র)" },
+                    { name: "তথ্য ও যোগাযোগ প্রযুক্তি (ICT)" },
+                    { name: "পদার্থবিজ্ঞান" },
+                    { name: "রসায়ন" },
+                    { name: "উচ্চতর গণিত / জীববিজ্ঞান" },
+                    { name: "৪র্থ বিষয় (জীববিজ্ঞান / উচ্চতর গণিত)", isFourth: true }
+                ]
+            }
+        }
+    };
+
+    let currentCategory = 'hsc';
+
+    function switchCategory(cat) {
+        currentCategory = cat;
+        document.getElementById('hsc-tab').classList.toggle('active', cat === 'hsc');
+        document.getElementById('alim-tab').classList.toggle('active', cat === 'alim');
+
+        const groupSelect = document.getElementById('group-select');
+        groupSelect.innerHTML = '';
+
+        data[cat].groups.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = g.name;
+            groupSelect.appendChild(opt);
+        });
+
+        renderSubjects();
+        document.getElementById('result-box').style.display = 'none';
+    }
+
+    function renderSubjects() {
+        const group = document.getElementById('group-select').value;
+        const container = document.getElementById('subjects-container');
+        container.innerHTML = '';
+
+        const subjects = data[currentCategory].subjects[group] || [];
+
+        subjects.forEach((sub, index) => {
+            const row = document.createElement('div');
+            row.className = `subject-row ${sub.isFourth ? 'fourth-subject' : ''}`;
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'subject-info';
+            infoDiv.innerHTML = `
+                <span class="subject-title">${sub.name}</span>
+                <span class="subject-tag">${sub.isFourth ? '[৪র্থ বিষয় (Optional)]' : '[আবশ্যিক বিষয়]'}</span>
+            `;
+
+            const select = document.createElement('select');
+            select.id = `grade-${index}`;
+            select.className = 'grade-select';
+            select.innerHTML = `
+                <option value="">গ্রেড নির্বাচন করুন</option>
+                <option value="5.00">A+ (5.00)</option>
+                <option value="4.00">A (4.00)</option>
+                <option value="3.50">A- (3.50)</option>
+                <option value="3.00">B (3.00)</option>
+                <option value="2.00">C (2.00)</option>
+                <option value="1.00">D (1.00)</option>
+                <option value="0.00">F (0.00)</option>
+            `;
+
+            row.appendChild(infoDiv);
+            row.appendChild(select);
+            container.appendChild(row);
+        });
+    }
+
+    function getLetterGrade(gpa) {
+        if (gpa >= 5.00) return 'A+';
+        if (gpa >= 4.00) return 'A';
+        if (gpa >= 3.50) return 'A-';
+        if (gpa >= 3.00) return 'B';
+        if (gpa >= 2.00) return 'C';
+        if (gpa >= 1.00) return 'D';
+        return 'F';
+    }
+
+    function calculateGPA() {
+        const group = document.getElementById('group-select').value;
+        const subjects = data[currentCategory].subjects[group];
+
+        let totalPoints = 0;
+        let mainSubjectCount = 0;
+        let fourthSubjectBonus = 0;
+        let isFailed = false;
+
+        for (let i = 0; i < subjects.length; i++) {
+            const val = document.getElementById(`grade-${i}`).value;
+
+            if (val === "") {
+                alert("দয়া করে সকল বিষয়ের প্রাপ্ত গ্রেড নির্বাচন করুন।");
+                return;
+            }
+
+            const gp = parseFloat(val);
+
+            if (subjects[i].isFourth) {
+                // Rule: Points above 2.00 (Minus 2)
+                if (gp > 2.00) {
+                    fourthSubjectBonus = gp - 2.00;
+                } else {
+                    fourthSubjectBonus = 0;
+                }
+            } else {
+                if (gp === 0.00) {
+                    isFailed = true;
+                }
+                totalPoints += gp;
+                mainSubjectCount++;
+            }
+        }
+
+        const resultBox = document.getElementById('result-box');
+        const resultTitle = document.getElementById('result-title');
+        const resultText = document.getElementById('result-text');
+
+        resultBox.style.display = 'block';
+
+        if (isFailed) {
+            resultBox.className = 'result-box fail-box';
+            resultTitle.textContent = 'ফলাফল: ফেল (Failed)';
+            resultText.innerHTML = 'আপনি আবশ্যিক একটি বা একাধিক বিষয়ে অকৃতকার্য (F Grade) হয়েছেন।<br><b>সর্বমোট জিপিএ: 0.00</b>';
+        } else {
+            let finalGPA = (totalPoints + fourthSubjectBonus) / mainSubjectCount;
+            if (finalGPA > 5.00) finalGPA = 5.00; // Maximum Cap 5.00
+
+            const letterGrade = getLetterGrade(finalGPA);
+
+            resultBox.className = 'result-box';
+            resultTitle.textContent = 'অভিনন্দন! আপনি উত্তীর্ণ হয়েছেন।';
+            resultText.innerHTML = `
+                <b>আপনার মোট জিপিএ (GPA): ${finalGPA.toFixed(2)}</b><br>
+                <b>লেটার গ্রেড (Grade): ${letterGrade}</b><br>
+                <small>(৪র্থ বিষয় থেকে অতিরিক্ত ${fourthSubjectBonus.toFixed(2)} পয়েন্ট যোগ করা হয়েছে)</small>
+            `;
+        }
+    }
+
+    // Initialize with HSC
+    switchCategory('hsc');
+</script>
+
+</body>
+</html>
